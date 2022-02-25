@@ -14,7 +14,7 @@ export const setPage = number => {
 
 export const getGenres = () => {
   return async dispatch => {
-    const response = await fetch('http://localhost:3001/genres');
+    const response = await fetch('https://server-videogames.herokuapp.com/genres');
     const data = await response.json();
     return dispatch({ type: GET_GENRES, payload: data });
   }
@@ -26,7 +26,7 @@ export const setHistory = value => {
 
 export const getGamesAll = () => {
   return async dispatch => {
-    const response = await fetch(`http://localhost:3001/videogames`);
+    const response = await fetch(`https://server-videogames.herokuapp.com/videogames`);
     const data = await response.json();
     return dispatch({ type: GET_GAMES_ALL, payload: data });
   }
@@ -34,7 +34,7 @@ export const getGamesAll = () => {
 
 export const getGamesName = name => {
   return async dispatch => {
-    const response = await fetch(`http://localhost:3001/videogames?name=${name}`);
+    const response = await fetch(`https://server-videogames.herokuapp.com/videogames?name=${name}`);
     const data = await response.json();
     return dispatch({ type: GET_GAMES_NAME, payload: data });
   }
@@ -52,7 +52,7 @@ export const setGamesNow = payload => {
 export const getGameDetail = id => {
   if(!id){return {type: GET_GAME_DETAIL, payload: '' }}
   return async dispatch => {
-    const response = await fetch(`http://localhost:3001/videogame/${id}`);
+    const response = await fetch(`https://server-videogames.herokuapp.com/videogame/${id}`);
     const data = await response.json();
     return dispatch({ type: GET_GAME_DETAIL, payload: data });
   }
