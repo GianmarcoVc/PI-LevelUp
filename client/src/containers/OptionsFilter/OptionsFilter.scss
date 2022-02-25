@@ -1,0 +1,88 @@
+#boxForm{
+  display: flex;
+  text-align: left;
+  overflow: hidden;
+  justify-content: flex-end;
+  #formFilter{
+    padding: 20px;
+    width: 270px;
+    .option{
+      padding: 15px 0px;
+      border-top: 2px solid rgba(255, 255, 255, 0.5);
+      .drop{
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        justify-content: space-between;
+        .title{
+          font-size: 20px;
+          font-weight: bold;
+        }
+        .fas{
+          transition: all .3s ease;
+        }
+      }
+      .dropdown{
+        margin-top: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        .input_group{
+          display: flex;
+          align-items: center;
+          gap: 13px;
+          input{
+            width: 15px;
+            height: 15px;
+            cursor: pointer;
+            appearance: none;
+            border: 2px solid var(--primary);
+            &:checked{
+              background: var(--primary);
+            }
+            &:disabled{
+              border: 2px solid gray;
+            }
+          }
+          label{
+            font-size: 15px;
+          }
+        }
+      }
+    }
+    button{
+      border: none;
+      border-radius: 5px;
+      display: block;
+      margin: 0 auto;
+      color: white;
+      font-size: 18px;
+      padding: 8px 13px;
+      margin-top: 15px;
+      background: var(--primary);
+    }
+  }
+}
+
+@media screen and (max-width: 768px) {
+  #boxForm{
+    position: fixed;
+    top: 0;
+    right: 0;
+    z-index: 99;
+    background: #141414;
+    box-shadow: -5px -5px 15px rgba(128, 128, 128, 0.3);
+    #formFilter{
+      width: 270px;
+      height: 100vh;
+      overflow: auto;
+      padding: 60px 20px;
+      button{
+        right: 40px;
+        bottom: 20px;
+        position: fixed;
+        box-shadow: 0px 0px 70px rgba(128, 128, 128, 0.5);
+      }
+    }
+  }
+}

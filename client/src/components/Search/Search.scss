@@ -1,0 +1,50 @@
+#search{
+  position: relative;
+  #titleGame{
+    border: none;
+    outline: none;
+    color: #141414;
+    padding: 7px 15px;
+    border-radius: 6px;
+  }
+  #history{
+    top: 30px;
+    left: 0;
+    width: 100%;
+    display: flex;
+    overflow: hidden;
+    position: absolute;
+    flex-direction: column;
+    background: var(--grayDark);
+    border-radius: 0px 0px 5px 5px;
+    &.hide{
+      animation: hide .3s ease-in-out forwards;
+      @keyframes hide {
+        to { 
+          height: 0px;
+          overflow: hidden;
+        }
+      }
+    }
+    #item{
+      gap: 10px;
+      padding: 10px;
+      display: flex;
+      cursor: pointer;
+      font-size: 15px;
+      align-items: center;
+      .fas{
+        color: gray;
+        font-size: 12px;
+      }
+      &:hover{
+        background: var(--grayLight);
+      }
+    }
+  }
+}
+@media screen and (max-width: 768px){
+  #search{
+    // display: none;
+  }
+}

@@ -1,0 +1,19 @@
+#games {
+  background: #141414;
+  #headerFondo {
+    height: 450px;
+    background-size: cover;
+    background-position: center;
+  }
+  #content {
+    display: flex;
+    align-items: flex-start;
+  }
+}
+@media screen and (max-width: 768px) {
+  #games{
+    #headerFondo{
+      display: none;
+    }
+  }
+}

@@ -1,0 +1,68 @@
+.game {
+  width: 100%;
+  height: 180px;
+  cursor: pointer;
+  overflow: hidden;
+  max-width: 280px;
+  position: relative;
+  &:hover img{
+    transform: scale3d(1.1, 1.1, 1.1);
+    transition: all .5s ease;
+    &+#info{
+      background: linear-gradient(rgba(128, 128, 128, 0.25) 0% 60%, black 100%);
+    }
+  }
+  &>img, #loadImage{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  #loadImage{
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    background: #303030;
+    justify-content: center;
+  }
+  #info{
+    bottom: 0;
+    z-index: 5;
+    height: 100%;
+    width: 100%;
+    padding: 7px;
+    display: flex;
+    text-align: left;
+    position: absolute;
+    align-items: flex-end;
+    justify-content: space-between;
+    background: linear-gradient(transparent 0% 60%, black 100%);
+    #left{
+      #title{
+        font-size: 18px;
+      }
+      #genres{
+        gap: 0px 10px;
+        display: flex;
+        flex-wrap: wrap;
+        margin-top: 5px;
+        span{
+          font-size: 14px;
+          font-weight: bold;
+          color: rgb(173, 173, 173);
+        }
+      }
+    }
+    #rating{
+      display: flex;
+      gap: 10px;
+      font-size: 16px;
+      font-weight: bold;
+      i{
+        color: var(--primary);
+      }
+    }  
+  }
+}
