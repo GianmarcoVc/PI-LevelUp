@@ -33,7 +33,7 @@ router.get('/', async (req, res) => {
     }
 
     // Peticion de Juegos a la Api
-    let url_base = `https://api.rawg.io/api/games?key=${YOUR_API_KEY}`
+    let url_base = `http://api.rawg.io/api/games?key=${YOUR_API_KEY}`
     let url_api = name ? `${url_base}&search=${name}` : url_base
     
     let gamesApi = []

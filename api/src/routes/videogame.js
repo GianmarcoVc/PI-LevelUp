@@ -21,15 +21,15 @@ router.get('/:id', async (req, res) => {
       })    
     }
     else {
-      let result = await axios.get(`https://api.rawg.io/api/games/${id}?key=${YOUR_API_KEY}`)
+      let result = await axios.get(`http://api.rawg.io/api/games/${id}?key=${YOUR_API_KEY}`)
       const { name, description_raw, background_image, released, rating, platforms, tags, genres, website } = result.data  
       
-      let result2 = await axios.get(`https://api.rawg.io/api/games/${id}/movies?key=${YOUR_API_KEY}`)
+      let result2 = await axios.get(`http://api.rawg.io/api/games/${id}/movies?key=${YOUR_API_KEY}`)
       if(result2.data.results.length){
         var { name: v_name, preview: v_preview, data: v_data} = result2.data.results[0]
       }
 
-      let result3 = await axios.get(`https://api.rawg.io/api/games/${id}/screenshots?key=${YOUR_API_KEY}`)
+      let result3 = await axios.get(`http://api.rawg.io/api/games/${id}/screenshots?key=${YOUR_API_KEY}`)
       const screenshots = result3.data.results && result3.data.results.map(a => a.image)
 
       var game = {name, description_raw, background_image, released, rating, 
