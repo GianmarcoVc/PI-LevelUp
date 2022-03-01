@@ -1,4 +1,3 @@
-require('dotenv').config();
 const genres = require('./genres')
 const images = require('./images')
 const { Router } = require('express');

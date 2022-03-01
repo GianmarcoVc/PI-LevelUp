@@ -1,3 +1,4 @@
+require('dotenv').config();
 const axios = require("axios")
 const { Genre } = require('../db')
 const { YOUR_API_KEY } = process.env
