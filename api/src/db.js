@@ -3,11 +3,12 @@ const fs = require('fs');
 const path = require('path');
 const { Sequelize } = require('sequelize');
 const {
-  DB_USER, DB_PASSWORD, DB_HOST, NAME_DATABASE, DATABASE_URL, NODE_ENV
+  DB_USER, DB_PASSWORD, DB_HOST, DB, 
+  DATABASE_URL, NODE_ENV
 } = process.env;
 
 const sequelize = !NODE_ENV 
-  ? new Sequelize(`postgres://${DB_USER}:${DB_PASSWORD}@${DB_HOST}/${NAME_DATABASE}`, {
+  ? new Sequelize(`postgres://${DB_USER}:${DB_PASSWORD}@${DB_HOST}/${DB}`, {
       logging: false, 
       native: false,
     })
@@ -21,6 +22,10 @@ const sequelize = !NODE_ENV
         }
       }
     });
+
+sequelize.authenticate()
+  .then(() =>  console.log("Connected Database!"))
+  .catch((err) => console.warn(err))
 
 const basename = path.basename(__filename);
 

@@ -9,59 +9,64 @@ const router = Router()
 router.get('/', async (req, res) => {
   const { name } = req.query
 
-  try {
+  const include = {
+    model: Genre,
+    attributes: ['name'],
+    through: {attributes: []}
+  }
 
+  try {
     // Peticion a la Base de Datos
-    if(name){
-          
-      var gamesDB = await Videogame.findAll({
-        where: { name: { [Op.startsWith] : name }},
-        include: {
-          model: Genre,
-          attributes: ['name'],
-          through: {attributes: []}
-        }
-      })  
-    } else {
-      var gamesDB = await Videogame.findAll({
-        include: {
-          model: Genre,
-          attributes: ['name'],
-          through: {attributes: []}
-        }
-      })  
-    }
+    const queryObj = name ? {
+      where: { name: { [Op.substring] : name.toLowerCase() }}, include
+    } : { include }
+
+    let gamesDB = await Videogame.findAll(queryObj)  
 
     // Peticion de Juegos a la Api
-    let url_base = `http://api.rawg.io/api/games?key=${YOUR_API_KEY}`
-    let url_api = name ? `${url_base}&search=${name}` : url_base
+    let url_base = `https://api.rawg.io/api/games?key=${YOUR_API_KEY}`
+
+    let url_api = !name 
+      ? url_base
+      : `${url_base}&search=${name}` 
     
     let gamesApi = []
     let i = 0
 
     do {
-      let result = await axios.get(url_api)
-      let datesGames = result.data.results.map(r => {
-        const {id, name, genres: allGenres, background_image, rating} = r
-        const genres = allGenres.map(g => {
-          const {id, name} = g
-          return {id, name}
+      let res = await axios.get(url_api)
+
+      let games = res.data.results.map(game => {
+        const {
+          name, 
+          rating,
+          id: idGame, 
+          background_image, 
+          genres: allGenres,
+        } = game
+
+        const genres = allGenres.map(genre => {
+          const {
+            name,
+            id: idGenre, 
+          } = genre
+          return {idGenre, name}
         })
-        return {id, name, genres, background_image, rating}
+
+        return {idGame, name, genres, background_image, rating}
       })
-      gamesApi = gamesApi.concat(datesGames)
+
+      gamesApi = gamesApi.concat(games)
       url_api = result.data.next
       i++
-    } while (!name && i < 5);
+    // } while (!name && i < 5);
+    } while (i < 5);
     
-    // Se juntas ambos grupos en un mismo array
-    let gamesAll = gamesDB.concat(gamesApi)
+    let gamesAll = [gamesDB, gamesAll]
 
-    // Se quitan los juegos demas para que tenga la cantidad pedida
     name ? gamesAll.splice(30) : gamesAll.splice(100)
-    !name && gamesAll.splice(100)
 
-    if(!gamesAll.length){return res.json(false)}
+    if(!gamesAll.length){ return res.json(false) }
     return res.json(gamesAll)  
   } 
   catch (err) {

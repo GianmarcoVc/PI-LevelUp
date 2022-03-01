@@ -14,7 +14,13 @@ server.use(bodyParser.json({ limit: '50mb' }));
 server.use(cookieParser());
 server.use(morgan('dev'));
 server.use((req, res, next) => {
-  const allowedOrigins = ['videogames-app-nu.vercel.app', 'videogames-app-git-master-gianmarcovc.vercel.app', 'videogames-app-gianmarcovc.vercel.app']
+  const allowedOrigins = [
+    'https://videogames-app-nu.vercel.app', 
+    'https://videogames-app-git-master-gianmarcovc.vercel.app', 
+    'https://videogames-app-gianmarcovc.vercel.app',
+    "http://localhost:3000",
+    "http://192.168.0.5:3000"
+  ]
   const { origin } = req.headers;
   if(allowedOrigins.includes(origin)) {
     res.header('Access-Control-Allow-Origin', origin);
