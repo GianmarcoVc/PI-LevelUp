@@ -25,7 +25,7 @@ router.post('/', fileUpload.single('imageUpload'), async (req, res) => {
   var strPlatforms = Array.isArray(platforms) ? platforms.join(', ') : platforms
   var strTags = Array.isArray(tags) ? tags.join(', ') : tags
 
-  var urlImg = imageUrl || `http://localhost:3001/images/${req.file.filename}`
+  var urlImg = imageUrl || `${location.origin}/images/${req.file.filename}`
 
   const newGame = await Videogame.create({
     name, 
@@ -46,7 +46,6 @@ router.post('/', fileUpload.single('imageUpload'), async (req, res) => {
   Array.isArray(genres) ? genres.forEach(g => add(g)) : add(genres)
   
   console.log('Game publish!')
-  res.redirect(`http://localhost:3000/game/${newGame.id}`)
 })
 
 module.exports = router
