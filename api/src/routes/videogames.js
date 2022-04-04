@@ -1,9 +1,9 @@
-require('dotenv').config();
-const axios = require('axios');
-const { Op } = require("sequelize");
-const { Router } = require("express")
-const { YOUR_API_KEY } = process.env;
-const { Videogame, Genre } = require("../db")
+require('dotenv').config()
+const axios = require('axios')
+const { Op } = require('sequelize')
+const { Router } = require('express')
+const { YOUR_API_KEY } = process.env
+const { Videogame, Genre } = require('../db')
 
 const router = Router()
 
@@ -13,67 +13,46 @@ router.get('/', async (req, res) => {
   const include = {
     model: Genre,
     attributes: ['name'],
-    through: {attributes: []}
+    through: { attributes: [] }
   }
+  const queryObj = name
+    ? { where: { name: { [Op.substring]: name.toLowerCase() } }, include }
+    : { include }
+
+  const urlBase = `/games?key=${YOUR_API_KEY}`
 
   try {
     // Peticion a la Base de Datos
-    const queryObj = name ? {
-      where: { name: { [Op.substring] : name.toLowerCase() }}, include
-    } : { include }
-
-    let gamesDB = await Videogame.findAll(queryObj)  
+    const GamesDB = await Videogame.findAll(queryObj)
 
     // Peticion de Juegos a la Api
-    let url_base = `https://api.rawg.io/api/games?key=${YOUR_API_KEY}`
+    let GamesAPI = []
+    let urlApi = !name ? urlBase : `${urlBase}&search=${name}`
 
-    let url_api = !name 
-      ? url_base
-      : `${url_base}&search=${name}` 
-    
-    let gamesApi = []
-    let i = 0
+    // Para que nos devuelva 100 juegos se realizara 5 veces el proceso (aumentando 20 por cada uno)
+    for (let i = 0; i < 5; i++) {
+      const res = await axios.get(urlApi)
 
-    do {
-      let res = await axios.get(url_api)
-
-      let games = res.data.results.map(game => {
+      const NewGames = res.data.results.map(game => {
         const {
-          name, 
-          rating,
-          id: idGame, 
-          background_image, 
-          genres: allGenres,
+          name, rating, id: idGame, background_image, genres: allGenres
         } = game
-
-        const genres = allGenres.map(genre => {
-          const {
-            name,
-            id: idGenre, 
-          } = genre
-          return {idGenre, name}
-        })
-
-        return {idGame, name, genres, background_image, rating}
+        const genres = allGenres.map(genre => genre.name)
+        return { name, rating, idGame, background_image, genres }
       })
 
-      gamesApi = gamesApi.concat(games)
-      url_api = result.data.next
-      i++
-    // } while (!name && i < 5);
-    } while (i < 5);
-    
-    let gamesAll = [gamesDB, gamesAll]
+      GamesAPI = [...GamesAPI, ...NewGames]
+      urlApi = res.data.next
+    }
 
-    name ? gamesAll.splice(30) : gamesAll.splice(100)
+    const gamesAll = [...GamesDB, ...GamesAPI]
 
-    if(!gamesAll.length){ return res.json(false) }
-    return res.json(gamesAll)  
-  } 
-  catch (err) {
+    if (!gamesAll.length) { return res.json(false) }
+    return res.json(gamesAll)
+  } catch (err) {
     console.log('Error: ', err)
-    return res.json('Hubo un error')
+    return res.json([])
   }
 })
 
-module.exports = router;
+module.exports = router

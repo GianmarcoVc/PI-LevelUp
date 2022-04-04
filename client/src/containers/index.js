@@ -1,0 +1,5 @@
+export { default as Landing } from './Landing/Landing'
+export { default as Games } from './Games/Games'
+export { default as DetailGame } from './DetailGame/DetailGame'
+export { default as CreateGame } from './CreateGame/CreateGame'
+export { default as About } from './About/About'

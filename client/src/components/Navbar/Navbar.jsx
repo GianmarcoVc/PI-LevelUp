@@ -1,82 +1,87 @@
-import './Navbar.scss'
 import { useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { Link, Outlet, useLocation } from 'react-router-dom'
+import { FaHome, FaGamepad, FaPlus, FaUserAlt, FaFilter, FaTimes, FaBars } from 'react-icons/fa'
 
-import Search from '../Search/Search'
+import styles from './Navbar.module.scss'
+import { LogoColor } from '../../assets'
+import { Search, NavbarMobile } from '../index'
 import { setBarFilter } from '../../redux/actions'
-import LogoColor from '../../assets/logo/color.svg'
 
 const Navbar = () => {
   const dispatch = useDispatch()
   const location = useLocation().pathname
-  const [sidebar, setSidebar] = useState(false);
+  const [sidebar, setSidebar] = useState(false)
 
-  let navLinks = [
+  const navLinks = [
     {
       name: 'Home',
       ruta: '/',
-      icon: 'fas fa-home'
+      icon: <FaHome />
     },
     {
       name: 'Games',
       ruta: '/games',
-      icon: 'fas fa-gamepad'
+      icon: <FaGamepad />
     },
     {
       name: 'Create',
       ruta: '/create',
-      icon: 'fas fa-plus'
+      icon: <FaPlus />
     },
     {
       name: 'About',
       ruta: '/about',
-      icon: 'fas fa-user-alt'
+      icon: <FaUserAlt />
     }
   ]
 
   return (
     <>
-      <nav id="navbar">
+      <nav id={styles.navbar}>
         <Link to='/'>
-          <img src={LogoColor} id='logo' alt="Level Up" />
+          <img
+            alt='Level Up'
+            src={LogoColor}
+            id={styles.logo}
+          />
         </Link>
-        <ul className='pages desktop'>
-          {navLinks.map((e,i) => 
-            <Link to={e.ruta} key={i}
-            className={location === e.ruta ? 'active' : 'desactive'}
-            >{e.name}</Link>
+        <ul id={styles.nav}>
+          {navLinks.map((e, i) =>
+            <Link
+              key={i}
+              to={e.ruta}
+              className={`${styles.opt} ${location === e.ruta ? styles.active : styles.desactive}`}
+            >{e.name}
+            </Link>
           )}
         </ul>
-        {location === '/games' && 
-          <>
-            <Search/>
-            <i id='filter'
-              className='fas fa-filter'
-              onClick={e => dispatch(setBarFilter())}
+        {location === '/games'
+          ? (
+            <>
+              <Search isNavbar />
+              <FaFilter
+                id={styles.iconFilter}
+                onClick={() => dispatch(setBarFilter())}
+              />
+            </>)
+          : null}
+        {sidebar
+          ? <FaTimes
+              id={styles.iconBurguer}
+              onClick={() => setSidebar(!sidebar)}
             />
-          </>
-        }
-        <i 
-          id='burguer'
-          onClick={() => setSidebar(!sidebar)}
-          className={sidebar ? 'fas fa-times' : 'fas fa-bars'}
-        />
+          : <FaBars
+              id={styles.iconBurguer}
+              onClick={() => setSidebar(!sidebar)}
+            />}
       </nav>
-      <ul 
-        className='pages mobile' 
-        style={{transform: sidebar ? 'translateX(0%)' : 'translateX(-100%)'}}
-      >
-        {navLinks.map((e,i) => 
-          <Link to={e.ruta} key={i}
-          className={`opt ${location === e.ruta ? 'active' : 'desactive'}`}
-          onClick={() => setSidebar(false)}>
-            <i className={e.icon}/>
-            <p>{e.name}</p>
-          </Link>  
-        )}
-      </ul>
-      <Outlet/>
+      <NavbarMobile
+        sidebar={sidebar}
+        navLinks={navLinks}
+        setSidebar={setSidebar}
+      />
+      <Outlet />
     </>
   )
 }

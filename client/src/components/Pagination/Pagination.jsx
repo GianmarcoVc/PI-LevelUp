@@ -1,27 +1,32 @@
-import './Pagination.scss'
-import { setPage } from '../../redux/actions'
 import { useDispatch, useSelector } from 'react-redux'
 
-const Pagination = ({size}) => {
+import styles from './Pagination.module.scss'
+import { setPage } from '../../redux/actions'
 
+const Pagination = ({ size }) => {
   const dispatch = useDispatch()
-  const { page } = useSelector(state => state)
+  const { page: pageActual } = useSelector(state => state)
 
-  const result = []
+  const pages = []
   const numPages = Math.ceil(size / 15)
-  for (let i = 1; i <= numPages; i++) {result.push(i)}
-  
+  for (let i = 1; i <= numPages; i++) { pages.push(i) }
+
   return (
-    <div id='pagination'>
-      {result.length > 1 && result.map((r, i) =>
-        <button 
-          id={r} 
+    <section id={styles.pagination}>
+      {pages.length > 1 && pages.map((page, i) =>
+        <button
           key={i}
-          className={page === r ? 'active' : 'desactive'} 
-          onClick={() => dispatch(setPage(r))}
-        >{r}</button>
+          id={page}
+          onClick={() => dispatch(setPage(page))}
+          className={
+            pageActual === page
+              ? styles.active
+              : styles.desactive
+          }
+        >{page}
+        </button>
       )}
-    </div>
+    </section>
   )
 }
 

@@ -1,4 +1,4 @@
-const { DataTypes } = require('sequelize');
+const { DataTypes } = require('sequelize')
 
 module.exports = sequelize => {
   sequelize.define('videogame', {
@@ -9,7 +9,7 @@ module.exports = sequelize => {
     },
     name: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: false
     },
     background_image: {
       type: DataTypes.STRING,
@@ -26,15 +26,15 @@ module.exports = sequelize => {
       type: DataTypes.DECIMAL
     },
     platforms: {
-      type: DataTypes.STRING,
+      type: DataTypes.ARRAY(DataTypes.STRING),
       allowNull: false
     },
     tags: {
-      type: DataTypes.STRING,
+      type: DataTypes.ARRAY(DataTypes.STRING),
       allowNull: false
     },
     website: {
       type: DataTypes.STRING
     }
-  });
-};
+  })
+}

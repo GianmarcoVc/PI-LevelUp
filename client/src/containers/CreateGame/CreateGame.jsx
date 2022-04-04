@@ -1,23 +1,24 @@
-import './CreateGame.scss'
-import { validate } from './Validate.jsx'
 import { useState, useEffect } from 'react'
-import { getGenres } from '../../redux/actions'
+import { Link } from 'react-router-dom'
+import { FaCheck, FaTimes, FaUpload } from 'react-icons/fa'
 import { useSelector, useDispatch } from 'react-redux'
-import Chracter from '../../assets/chracter_valorant.png'
+import { Helmet, HelmetProvider } from 'react-helmet-async'
+
+import styles from './CreateGame.module.scss'
+import { validate } from './Validate.jsx'
+import { CreateCharacter } from '../../assets'
+import { createGame, getGenres, setNewGame } from '../../redux/actions'
+import { CampoForm, CampoFormOpts, ModalSelectOpts, ModalImage, SpinnerLoading } from '../../components'
 
 const CreateGame = () => {
   const dispatch = useDispatch()
-
   const genres = useSelector(state => state.genres)
   const tags = ['Singleplayer', 'Multiplayer', 'RPG', 'Co-op', 'Funny']
   const platforms = ['PlayStation 5', 'PC', 'Xbox One', 'PlayStation 3']
 
-  document.title = 'Level Up | Create'
-
   const initialState = {
     name: '',
     imageUrl: '',
-    imageUpload: '',
     description: '',
     released: '',
     rating: '',
@@ -25,287 +26,233 @@ const CreateGame = () => {
     platforms: [],
     tags: []
   }
-
   const [game, setGame] = useState(initialState)
   const [error, setError] = useState(initialState)
-  const [sendFirst, setSendFirst] = useState(false)
-  const [select, setSelect] = useState({
-    genres: false,
-    tags: false,
-    platforms: false
-  })
 
+  const [send, setSend] = useState(false)
+  const [select, setSelect] = useState(null)
+  const [openImage, setOpenImage] = useState(false)
+  const [sendFirst, setSendFirst] = useState(false)
+  const [errorImage, setErrorImage] = useState(false)
+  const [dataSend, setDataSend] = useState({ id: '', send: false, error: false })
 
   useEffect(() => {
     !genres.length && dispatch(getGenres())
     sendFirst && setError(validate(game))
-  }, [dispatch, sendFirst, game, genres]) 
+  }, [dispatch, sendFirst, game, genres])
 
   const handleChange = e => {
-    const name = e.target.name 
+    const name = e.target.name
     const value = e.target.value
+    const checked = e.target.checked
 
-    if(name === 'genres' || name === 'platforms' || name === 'tags'){
-      const checked = e.target.checked
-      if(checked && !game[name].includes(value)){
-        setGame({
-          ...game,
-          [name]: game[name].concat(value)
-        })
-      } else if(!checked){
-        setGame({
-          ...game,
-          [name]: game[name].filter(v => v !== value)
-        })
-      }
-    } else {
-      setGame({
-        ...game,
-        [name]: value
-      }) 
+    if (['genres', 'platforms', 'tags'].includes(name)) {
+      return (checked && !game[name].includes(value))
+        ? setGame({ ...game, [name]: [...game[name], value] })
+        : setGame({ ...game, [name]: game[name].filter(v => v !== value) })
     }
+    if (name === 'rating') {
+      return setGame({ ...game, [name]: +value })
+    }
+    if (name === 'imageUrl') { setErrorImage(false) }
+    setGame({ ...game, [name]: value })
   }
 
   const handleSubmit = e => {
-    var result = ''
-    if(!sendFirst) {
+    e.preventDefault()
+
+    let result
+    if (!sendFirst) {
       setSendFirst(true)
       const validation = validate(game)
-      setError(validation)  
-      var result = validation
+      setError(validation)
+      result = validation
     }
 
-    if(Object.values(result || error).some(e => e.length)){
-      console.log('No se envio, faltan datos aún.')
-      return e.preventDefault()
+    if (Object.values(result || error).every(e => !e.length)) {
+      setSend(true)
+      dispatch(createGame(game))
+        .then(newGame => {
+          setDataSend({ ...dataSend, send: true, id: newGame.data.id })
+          dispatch(setNewGame(true))
+          setSend(false)
+          setSendFirst(false)
+          setGame(initialState)
+          e.target.reset()
+        })
+        .catch(() => {
+          setSend(false)
+          setDataSend({ ...dataSend, send: true, error: true })
+        })
     }
   }
 
-  const setSel = prop => {
-    setSelect({...select, [prop]: !select[prop]})
-  }
+  return (
+    <>
+      <HelmetProvider>
+        <Helmet>
+          <title>Level Up | Create</title>
+        </Helmet>
+      </HelmetProvider>
+      <div id={styles.create}>
+        {(send || dataSend.send) &&
+          <section id={styles.modalSend}>
+            <div id={styles.content}>
+              {send &&
+                <div id={styles.loadingSend}>
+                  <SpinnerLoading />
+                </div>}
+              {dataSend.error
+                ? <FaTimes className={`${styles.iconModal} ${styles.error}`} />
+                : <FaCheck className={`${styles.iconModal} ${styles.check}`} />}
 
-  return (  
-    <div id="create">
-      <form id='form' method="post" action="http://localhost:3001/videogame" encType='multipart/form-data'
-       onChange={e => handleChange(e)} onSubmit={e => handleSubmit(e)}>
-        <h2 id='title'>Your Game</h2>
-        
-        <div className="campo_form">
+              {dataSend.error
+                ? <p id={styles.textModal}>Hubo un error al crear el juego <span>Vuelva a intentarlo luego</span></p>
+                : <p id={styles.textModal}>El juego fue creado con éxito</p>}
 
-          <div className='content'>
-            <label htmlFor="name" className='require'>Nombre</label>
-            <input type="text" name="name" id="name" />
-          </div>
+              <div id={styles.btnsModal}>
+                <Link
+                  className={`${styles.btn} ${dataSend.error && styles.error}`}
+                  to={dataSend.error ? '/games' : `/game/${dataSend.id}`}
+                >
+                  Ir a{dataSend.error ? ' Games' : 'l Juego'}
+                </Link>
+                {!dataSend.error &&
+                  <a
+                    href='#again'
+                    className={styles.btn}
+                    onClick={() => setDataSend({ id: '', send: false })}
+                  >Crear otro
+                  </a>}
+              </div>
+            </div>
+          </section>}
+        {(game.imageUrl && !errorImage && openImage) &&
+          <ModalImage
+            srcImage={game.imageUrl}
+            moveCarrusel={setOpenImage}
+            iconsMove={false}
+          />}
+        <form
+          id={styles.form}
+          onChange={e => handleChange(e)}
+          onSubmit={e => handleSubmit(e)}
+        >
+          <h2 id={styles.title}>{game.name || 'Nombre del Juego'}</h2>
 
-          {error.name && <span className="error">{error.name}</span>}
-        </div>
-       
-        <div className="campo_form">
-          <label className='require'>Image</label>
+          <CampoForm
+            name='Nombre'
+            slug='name'
+            type='text'
+            error={error.name}
+          />
+          <CampoForm slug='image' error={error.image}>
+            <label className={styles.require}>Foto del Juego</label>
+            <section id={styles.boxImage}>
+              <div id={styles.infoImageUrl}>
+                {(!errorImage && game.imageUrl) &&
+                  <img
+                    id={styles.image}
+                    src={game.imageUrl}
+                    onClick={() => setOpenImage(true)}
+                    onError={() => setErrorImage(true)}
+                  />}
 
-          <div id='boxImage'>
-            <label id='labelUpload' htmlFor='imageUpload' className={game.imageUpload ? 'checked' : game.imageUrl ? 'disabled' : ''}>
-              <i className={`fas ${game.imageUpload ? 'fa-check' : game.imageUrl ? 'fa-times' :'fa-upload'} ${game.imageUrl && 'disabled'}`}/>
-              <p>{game.imageUpload ? game.imageUpload.slice(12) : game.imageUrl ? 'Ya hay una imagen por url.' :'Ingresa tu imagen aqui'}</p>
+                {errorImage
+                  ? <FaTimes size={20} />
+                  : <FaUpload size={20} />}
+                <p>
+                  {errorImage
+                    ? 'No se puede cargar la imagen'
+                    : 'Ingresa la url debajo'}
+                </p>
+              </div>
+              <input
+                type='url'
+                id={styles.imageUrl}
+                name='imageUrl'
+                disabled={game.imageUpload}
+                placeholder='Ingresa la Url de tu imagen'
+              />
+            </section>
+          </CampoForm>
+          <CampoForm
+            slug='description'
+            error={error.description}
+          >
+            <label
+              htmlFor='description'
+              className={styles.require}
+            >
+              Descripcion
             </label>
-            <input type="file" name="imageUpload" id="imageUpload" accept='image/*' disabled={game.imageUrl}/>
-            <input type="url" name="imageUrl" placeholder='Ingresa la Url de tu imagen' id="imageUrl" disabled={game.imageUpload}/>
-          </div>
-
-          {error.image && <span className="error">{error.image}</span>}
-        </div>
-
-        <div className="campo_form">
-          <label htmlFor="description" className='require'>Description</label>
-          <textarea name="description" id="textDesc"/>
-          {error.description && <span className="error">{error.description}</span>}
-        </div>
-
-        <div className="campo_form">
-
-          <div className='content'>
-            <label htmlFor="released" className='require'>Release</label>
-            <input type="date" name="released" id="released"/>
-          </div>
-
-          {error.released && <span className="error">{error.released}</span>}
-        </div>
-        
-        <div className="campo_form">
-
-          <div className='content'>
-            <label htmlFor="rating" className='require'>Rating</label>
-            <input type="number" name="rating" id="rating" step='0.01'/>
-          </div>
-
-          {error.rating && <span className="error">{error.rating}</span>}
-        </div>
-        
-        <div className="campo_form">
-
-          <div className='content'>
-            <label className='require'>Genres</label>
-            <div className="selected">
-              {game.genres.length ?
-                  <>
-                    {game.genres.map((g,i) =>
-                      <div className='select' key={i}>
-                        <span>{g} <i className='fas fa-times-circle' 
-                        onClick={() => setGame({...game, genres: game.genres.filter(i => i !== g)})}/></span>  
-                      </div>
-                    )}
-                    <span 
-                      id='plusItem'
-                      title='Add other'
-                      onClick={e => setSel('genres')}
-                    >
-                      Add other <i className='fas fa-plus'/>
-                    </span>
-                  </>
-                : <p className='opt-select' onClick={e => setSel('genres')}>Select Here</p>
-              }
-            </div>
-
-            <div className={`momentSelect ${select.genres && 'active'}`}>
-              <div 
-                className='optionsSelect'
-                onMouseOver= {() => document.onclick = null}
-                onMouseOut={() => document.onclick = () => {
-                  setSel('genres')
-                  return document.onclick = null
-                }} 
-              >
-                {genres.map((g, i) => 
-                  <>
-                    <label 
-                    key={i}
-                    htmlFor={`genre${i}`} 
-                    className={`selectNow ${game.genres.includes(g) && 'checked'}`}>
-                    {g}</label>
-                    <input type="checkbox" name="genres" id={`genre${i}`} value={g} 
-                    disabled={game.genres.length > 4 && !game.genres.includes(g)}/>
-                  </>
-                )}
-                <span className='numSelect'>Seleccionados: {game.genres.length} / 5</span>
-              </div>
-            </div>
-          </div>
-          {error.genres && <span className="error">{error.genres}</span>}
-        </div>
-
-        <div className="campo_form">
-
-          <div className='content'>
-            <label className='require'>Platforms</label>
-            <div className="selected">
-              {game.platforms.length ?
-                <>
-                  {game.platforms.map((p,i) =>
-                      <div className='select' key={i}>
-                        <span>{p} <i className='fas fa-times-circle' 
-                        onClick={() => setGame({...game, platforms: game.platforms.filter(i => i !== p)})}/></span>  
-                      </div>
-                  )}
-                  <span 
-                    id='plusItem'
-                    title='Add other'
-                    onClick={e => setSel('platforms')}
-                  >
-                    Add other <i className='fas fa-plus'/>
-                  </span>
-                </>                
-                : <p className='opt-select' onClick={e => setSel('platforms')}>Select Here</p>
-              }
-            </div>
-
-            <div className={`momentSelect ${select.platforms && 'active'}`}>
-              <div 
-                className='optionsSelect'
-                onMouseOver= {() => document.onclick = null}
-                onMouseOut={() => document.onclick = () => {
-                  setSel('platforms')
-                  return document.onclick = null
-                }} 
-              >
-                {platforms.map((p, i) => 
-                  <>
-                    <label 
-                    key={i}
-                    htmlFor={`platform${i}`} 
-                    className={`selectNow ${game.platforms.includes(p) && 'checked'}`}>
-                    {p}</label>
-                    <input type="checkbox" name="platforms" id={`platform${i}`} value={p} />                
-                  </>
-                )}
-                <span className='numSelect'>Seleccionados: {game.platforms.length}</span>
-              </div>
-            </div> 
-          </div>
-          {error.platforms && <span className="error">{error.platforms}</span>}
-        </div>
-
-        <div className="campo_form">
-
-          <div className='content'>
-            <label className='require'>Tags</label>
-            <div className="selected">
-              {game.tags.length ?
-                <>
-                  {game.tags.map((t,i) =>
-                    <div className='select' key={i}>
-                      <span>{t} <i className='fas fa-times-circle' 
-                      onClick={() => setGame({...game, tags: game.tags.filter(i => i !== t)})}/></span>  
-                    </div>
-                  )}
-                   <span 
-                    id='plusItem'
-                    title='Add other'
-                    onClick={e => setSel('tags')}
-                  >
-                    Add other <i className='fas fa-plus'/>
-                  </span>
-                </>                
-                : <p className='opt-select' onClick={e => setSel('tags')}>Select Here</p>
-              }
-            </div>
-
-            <div className={`momentSelect ${select.tags && 'active'}`}>
-              <div 
-                className='optionsSelect'
-                onMouseOver= {() => document.onclick = null}
-                onMouseOut={() => document.onclick = () => {
-                  setSel('tags')
-                  return document.onclick = null
-                }} 
-              >
-                {tags.map((t, i) => 
-                  <>
-                    <label 
-                    key={i}
-                    htmlFor={`tag${i}`} 
-                    className={`selectNow ${game.tags.includes(t) && 'checked'}`}>
-                    {t}</label>
-                    <input type="checkbox" name="tags" id={`tag${i}`} value={t} />                
-                  </>
-                )}
-                <span className='numSelect'>Seleccionados: {game.tags.length}</span>
-              </div>
-            </div> 
-          </div>
-          {error.tags && <span className="error">{error.tags}</span>}
-        </div>
-
-        <div className="campo_form">
-          <div className='content'>
-            <label htmlFor="website">Website</label>
-            <input type="text" name='website' id='website'/>
-          </div>
-        </div>
-        <input id='btnSub' type="submit" value='Publish your Game!'/>
-      </form>
-      <img id='character' src={Chracter} alt='Chracter Valorant'/>
-    </div>
+            <textarea
+              name='description'
+              id={styles.inputDescription}
+            />
+          </CampoForm>
+          <CampoForm
+            slug='released'
+            type='date'
+            name='Lanzamiento'
+            error={error.released}
+          />
+          <CampoForm
+            slug='rating'
+            type='number'
+            name='Rating'
+            error={error.rating}
+          />
+          <CampoFormOpts
+            name='Géneros'
+            type='genres'
+            error={error.genres}
+            game={game}
+            setGame={setGame}
+            setSelect={setSelect}
+          />
+          <CampoFormOpts
+            name='Plataformas'
+            type='platforms'
+            error={error.platforms}
+            game={game}
+            setGame={setGame}
+            setSelect={setSelect}
+          />
+          <CampoFormOpts
+            name='Etiquetas'
+            type='tags'
+            error={error.platforms}
+            game={game}
+            setGame={setGame}
+            setSelect={setSelect}
+          />
+          <CampoForm
+            slug='website'
+            type='text'
+            name='Sitio Web'
+            error={false}
+          />
+          <input
+            id={styles.btnSub}
+            type='submit'
+            value='Publicar Juego!'
+            disabled={sendFirst && Object.values(error).some(e => e.length)}
+          />
+          <ModalSelectOpts
+            game={game}
+            select={select}
+            setSelect={setSelect}
+            listOpts={select === 'genres' ? genres : select === 'tags' ? tags : platforms}
+          />
+        </form>
+        <img
+          id={styles.character}
+          src={CreateCharacter}
+          alt='Personaje de Valorant'
+        />
+      </div>
+    </>
   )
 }
 

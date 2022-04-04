@@ -1,23 +1,28 @@
-import './Games.scss'
-import ListGames from '../../containers/ListGames/ListGames'
-import OptionsFilter from '../../containers/OptionsFilter/OptionsFilter'
-import Footer from '../../components/Footer/Footer'
-import Fondo from '../../assets/backgrounds/games.jpg'
+import { Helmet, HelmetProvider } from 'react-helmet-async'
 
-const Games = () => {
+import styles from './Games.module.scss'
+import { GamesBanner } from '../../assets'
+import { ListGames, OptionsFilter, Footer } from '../../components'
 
-  document.title = 'Level Up | Games'
+const Games = () => (
+  <>
+    <HelmetProvider>
+      <Helmet>
+        <title>Level Up | Games</title>
+      </Helmet>
+    </HelmetProvider>
+    <main id={styles.games}>
+      <img
+        src={GamesBanner}
+        id={styles.headerFondo}
+      />
+      <section id={styles.content}>
+        <OptionsFilter />
+        <ListGames />
+      </section>
+    </main>
+    <Footer />
+  </>
+)
 
-  return (
-    <div id='games'>
-      <div id="headerFondo" style={{backgroundImage: `url(${Fondo})`}}></div>
-      <div id="content">
-        <OptionsFilter/>
-        <ListGames/>
-      </div>
-      <Footer/>
-    </div>
-  )
-}
-
-export default Games;
+export default Games

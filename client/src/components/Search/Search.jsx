@@ -1,25 +1,26 @@
-import './Search.scss'
 import { useState } from 'react'
+import { FaSearch } from 'react-icons/fa'
 import { useDispatch, useSelector } from 'react-redux'
+
+import styles from './Search.module.scss'
 import { getGamesName, setHistory } from '../../redux/actions'
 
-const Search = () => {
+const Search = ({ isNavbar }) => {
   const dispatch = useDispatch()
   const { history } = useSelector(state => state)
 
-  const [recomend, setRecomend] = useState(false)
   const [search, setSearch] = useState('')
+  const [recomend, setRecomend] = useState(false)
 
   const getGames = title => {
     dispatch(getGamesName(title))
-    dispatch(setHistory(title))  
+    dispatch(setHistory(title))
   }
 
   const handleSubmitTitle = e => {
     e.preventDefault()
-    if(search.length){ 
-      getGames(search)
-    }
+    if (search.length) { getGames(search) }
+    setSearch('')
   }
 
   const handleClick = e => {
@@ -29,32 +30,36 @@ const Search = () => {
   }
 
   return (
-    <form 
-      id='search'
+    <form
+      className={`${styles.search} ${isNavbar && styles.isNavbar}`}
       onSubmit={e => handleSubmitTitle(e)}
     >
-        <input 
-          type="" 
-          id='titleGame' 
-          name='titleGame' 
-          placeholder='Buscar Juegos'
-          onFocus={() => setRecomend(true)}
-          onBlur={() => setRecomend(false)}
-          onChange={e => setSearch(e.target.value)}
-        />
-        <div id="history" className={recomend ? 'view' : 'hide'}>
-            {history.map((e,i) =>
-              e.includes(search) &&
-              <div 
-                key={i}
-                id="item"
-                onClick={e => handleClick(e)}
-              >
-                <i className='fas fa-search'/> 
-                <span>{e}</span>
-              </div>
-            )}
-        </div>
+      <input
+        type='text'
+        value={search}
+        name='titleGame'
+        id={styles.inputSearch}
+        placeholder='Buscar Juegos'
+        onFocus={() => setRecomend(true)}
+        onBlur={() => setRecomend(false)}
+        onChange={e => setSearch(e.target.value)}
+      />
+      <div
+        id={styles.history}
+        className={recomend ? styles.view : styles.hide}
+      >
+        {history.map((e, i) =>
+          e.includes(search) &&
+            <div
+              key={i}
+              id={styles.item}
+              onClick={e => handleClick(e)}
+            >
+              <FaSearch />
+              <span>{e}</span>
+            </div>
+        )}
+      </div>
     </form>
   )
 }

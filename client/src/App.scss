@@ -1,0 +1,22 @@
+@import './scss/variables.scss';
+
+* {
+  margin: 0;
+  padding: 0;
+  color: white;
+  user-select: none;
+  box-sizing: border-box;
+  font-family: $fontPrimary;
+}
+body{
+  background: #141414;
+}
+iframe {
+  display: none;
+}
+a{
+  text-decoration: none;
+}
+li{
+  list-style: none;
+}
