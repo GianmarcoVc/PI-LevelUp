@@ -70,7 +70,7 @@ const ListGames = () => {
             ? (gamesView.length && !cambio)
                 ? gamesPage.map((g, i) =>
                   <Game
-                    key={++i}
+                    key={i}
                     name={g.name}
                     genres={g.genres}
                     rating={g.rating}

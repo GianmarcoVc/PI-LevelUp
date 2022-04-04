@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { FaCheck, FaTimes, FaUpload } from 'react-icons/fa'
 import { useSelector, useDispatch } from 'react-redux'
+import { FaCheck, FaTimes, FaImage } from 'react-icons/fa'
 import { Helmet, HelmetProvider } from 'react-helmet-async'
 
 import styles from './CreateGame.module.scss'
@@ -160,7 +160,7 @@ const CreateGame = () => {
 
                 {errorImage
                   ? <FaTimes size={20} />
-                  : <FaUpload size={20} />}
+                  : <FaImage size={30} />}
                 <p>
                   {errorImage
                     ? 'No se puede cargar la imagen'

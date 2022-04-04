@@ -143,7 +143,7 @@ const DetailGame = () => {
                       <FaAngleRight
                         onClick={() => moveCarrusel(true)}
                         className={`${styles.iconMove} ${styles.right}`}
-                        style={{ display: (slide.stop || game.screenshots.length < 3) ? 'none' : 'flex' }}
+                        style={{ display: (slide.stop || game.screenshots.length < 3 || window.innerWidth < 480) ? 'none' : 'flex' }}
                       />
                     </div>
                   </section>

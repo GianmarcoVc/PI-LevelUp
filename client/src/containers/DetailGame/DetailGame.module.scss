@@ -31,6 +31,8 @@
           div{
             gap: 10px;
             display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
             span{
               font-size: 15px;
               font-weight: bold;
@@ -175,6 +177,7 @@
       &#screenshots #carrusel{
         padding-left: 40px;
         .iconMove{
+          background: red;
           &.left{
             left: 0px;
           }
@@ -189,8 +192,9 @@
 
 @media screen and (max-width: 480px) {
   #detailGame section#screenshots #carrusel{
+    padding-left: 0px;
     .iconMove{
-      display: none;
+      visibility: hidden;
     }
     #images{
       flex-direction: column;
