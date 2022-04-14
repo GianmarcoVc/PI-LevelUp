@@ -19,7 +19,7 @@ router.get('/:id', async (req, res) => {
           through: { attributes: [] }
         }
       })
-      return res.json(game)
+      return res.json(game || { error: 'No se encontró ningún juego.' })
     }
 
     // Peticion del Juego

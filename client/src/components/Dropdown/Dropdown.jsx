@@ -19,8 +19,8 @@ const Dropdown = ({ drop, setDrop, select, title, children }) => {
       <motion.div
         className={styles.drop}
         animate={!drop[select]
-          ? { y: '-100%', opacity: 0, height: '0', overflow: 'hidden' }
-          : { y: '0', opacity: 1, marginBottom: '15px' }}
+          ? { y: '-100%', opacity: 0, height: '0px', overflow: 'hidden' }
+          : { y: '0', opacity: 1, height: 'max-content', marginBottom: '15px' }}
       >
         {children}
       </motion.div>

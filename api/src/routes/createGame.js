@@ -3,29 +3,29 @@ const { Videogame, Genre } = require('../db')
 
 router.post('/', async (req, res) => {
   const {
-    name, imageUrl, description, released, rating, genres, platforms, tags, website
+    name, image, description, released, rating, genres, platforms, tags, website
   } = req.body
 
-  // Pasar a arreglo si se emvia un strings para poder mapear solo los nombres
+  // Pasar a arreglo si se envia un string
   const validateArray = (element) => !Array.isArray(element) ? [element] : element
-  const ArrPlatforms = validateArray(platforms)
-  const ArrTags = validateArray(tags)
 
   try {
     const newGame = await Videogame.create({
       name,
-      background_image: imageUrl,
+      background_image: image,
       description_raw: description,
       released,
       rating,
-      platforms: ArrPlatforms,
-      tags: ArrTags,
+      platforms: validateArray(platforms),
+      tags: validateArray(tags),
       website
     })
-    genres.forEach(async g => {
-      const genre = await Genre.findAll({ where: { name: g } })
-      newGame.addGenre(genre)
+
+    genres.forEach(async genre => {
+      const genreDB = await Genre.findAll({ where: { name: genre } })
+      newGame.addGenre(genreDB)
     })
+
     console.log('Juego publicado con éxito!')
     return res.json(newGame)
   } catch (err) {

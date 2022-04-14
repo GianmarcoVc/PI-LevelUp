@@ -16,7 +16,18 @@ router.get('/', async (req, res) => {
     through: { attributes: [] }
   }
   const queryObj = name
-    ? { where: { name: { [Op.substring]: name.toLowerCase() } }, include }
+    ? {
+        where: {
+          name: {
+            [Op.or]: {
+              [Op.substring]: name,
+              [Op.startsWith]: name,
+              [Op.endsWith]: name
+            }
+          }
+        },
+        include
+      }
     : { include }
 
   const urlBase = `/games?key=${YOUR_API_KEY}`
@@ -33,13 +44,15 @@ router.get('/', async (req, res) => {
     for (let i = 0; i < 5; i++) {
       const res = await axios.get(urlApi)
 
-      const NewGames = res.data.results.map(game => {
-        const {
-          name, rating, id: idGame, background_image, genres: allGenres
-        } = game
-        const genres = allGenres.map(genre => genre.name)
-        return { name, rating, idGame, background_image, genres }
-      })
+      const NewGames = res.data.results
+        ? res.data.results.map(game => {
+            const {
+              name, rating, id: idGame, background_image, genres: allGenres
+            } = game
+            const genres = allGenres.map(genre => genre.name)
+            return { name, rating, idGame, background_image, genres }
+          })
+        : []
 
       GamesAPI = [...GamesAPI, ...NewGames]
       urlApi = res.data.next

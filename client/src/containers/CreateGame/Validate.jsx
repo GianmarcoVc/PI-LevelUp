@@ -9,9 +9,9 @@ export const validate = input => {
     error.name = 'El nombre no puede comenzar con un número'
   } else error.name = ''
 
-  if (!input.imageUrl) {
-    error.image = 'Sube o pon la url de una imagen.'
-  } else if (!/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()!@:%_\+.~#?&\/\/=]*)/.test(input.imageUrl)) {
+  if (!input.image) {
+    error.image = 'Ingresa la url de una imagen.'
+  } else if (!/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()!@:%_\+.~#?&\/\/=]*)/.test(input.image)) {
     error.image = 'Tiene que ser una url válida'
   } else error.image = ''
 

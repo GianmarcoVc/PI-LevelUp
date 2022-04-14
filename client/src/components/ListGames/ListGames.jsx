@@ -21,15 +21,15 @@ const ListGames = () => {
     }
   }, [])
 
-  useEffect(() => {
-    setCambio(true)
-    setTimeout(() => setCambio(false), 100)
-  }, [page, gamesNow])
+  // useEffect(() => {
+  //   setCambio(true)
+  //   setTimeout(() => setCambio(false), 100)
+  // }, [page, gamesNow])
 
-  useEffect(() => {
-    setCambio(true)
-    setTimeout(() => setCambio(false), 8000)
-  }, [history])
+  // useEffect(() => {
+  //   setCambio(true)
+  //   setTimeout(() => setCambio(false), 8000)
+  // }, [history])
 
   const gamesPage = gamesView ? gamesView.slice(page * 15 - 15, page * 15) : []
 

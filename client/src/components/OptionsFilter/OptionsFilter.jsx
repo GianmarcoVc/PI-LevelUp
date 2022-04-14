@@ -66,7 +66,6 @@ const OptionsFilter = () => {
       return setGames(gamesFilter)
     }
 
-    console.log('se setea: ', value)
     setCheck({ ...check, [value]: !!checked })
 
     // Orden Rating
@@ -99,12 +98,8 @@ const OptionsFilter = () => {
   return (
     <motion.div
       id={styles.boxForm}
-      initial={ window.innerWidth < 768
-        ? { x: '100%' }
-        : { width: '0px' }}
-      animate={window.innerWidth < 768
-        ? { x: barFilter ? '0' : '100%' }
-        : { width: barFilter ? 'max-content' : '0px' }}
+      initial={{ width: '0px' }}
+      animate={{ width: barFilter ? 'max-content' : '0px' }}
     >
       <form
         id={styles.formFilter}
@@ -152,11 +147,11 @@ const OptionsFilter = () => {
           setDrop={setDrop}
         >
           <InputGroup
-            name='Alone of Me'
+            name='Creados por mí'
             value='gamesDB'
           />
           <InputGroup
-            name='Games of Api'
+            name='Juegos de la Api'
             value='gamesAPI'
           />
         </Dropdown>

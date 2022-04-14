@@ -1,91 +1,32 @@
-import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { useSelector, useDispatch } from 'react-redux'
 import { FaCheck, FaTimes, FaImage } from 'react-icons/fa'
 import { Helmet, HelmetProvider } from 'react-helmet-async'
 
 import styles from './CreateGame.module.scss'
-import { validate } from './Validate.jsx'
 import { CreateCharacter } from '../../assets'
-import { createGame, getGenres, setNewGame } from '../../redux/actions'
 import { CampoForm, CampoFormOpts, ModalSelectOpts, ModalImage, SpinnerLoading } from '../../components'
+import { useState } from 'react'
+import useCreateGame from '../../hooks/useCreateGame'
 
 const CreateGame = () => {
-  const dispatch = useDispatch()
-  const genres = useSelector(state => state.genres)
-  const tags = ['Singleplayer', 'Multiplayer', 'RPG', 'Co-op', 'Funny']
-  const platforms = ['PlayStation 5', 'PC', 'Xbox One', 'PlayStation 3']
+  const {
+    game,
+    setGame,
+    error,
+    tags,
+    genres,
+    platforms,
+    send,
+    dataSend,
+    setDataSend,
+    errorImage,
+    setErrorImage,
+    handleInputChange,
+    handleInputSubmit
+  } = useCreateGame()
 
-  const initialState = {
-    name: '',
-    imageUrl: '',
-    description: '',
-    released: '',
-    rating: '',
-    genres: [],
-    platforms: [],
-    tags: []
-  }
-  const [game, setGame] = useState(initialState)
-  const [error, setError] = useState(initialState)
-
-  const [send, setSend] = useState(false)
   const [select, setSelect] = useState(null)
   const [openImage, setOpenImage] = useState(false)
-  const [sendFirst, setSendFirst] = useState(false)
-  const [errorImage, setErrorImage] = useState(false)
-  const [dataSend, setDataSend] = useState({ id: '', send: false, error: false })
-
-  useEffect(() => {
-    !genres.length && dispatch(getGenres())
-    sendFirst && setError(validate(game))
-  }, [dispatch, sendFirst, game, genres])
-
-  const handleChange = e => {
-    const name = e.target.name
-    const value = e.target.value
-    const checked = e.target.checked
-
-    if (['genres', 'platforms', 'tags'].includes(name)) {
-      return (checked && !game[name].includes(value))
-        ? setGame({ ...game, [name]: [...game[name], value] })
-        : setGame({ ...game, [name]: game[name].filter(v => v !== value) })
-    }
-    if (name === 'rating') {
-      return setGame({ ...game, [name]: +value })
-    }
-    if (name === 'imageUrl') { setErrorImage(false) }
-    setGame({ ...game, [name]: value })
-  }
-
-  const handleSubmit = e => {
-    e.preventDefault()
-
-    let result
-    if (!sendFirst) {
-      setSendFirst(true)
-      const validation = validate(game)
-      setError(validation)
-      result = validation
-    }
-
-    if (Object.values(result || error).every(e => !e.length)) {
-      setSend(true)
-      dispatch(createGame(game))
-        .then(newGame => {
-          setDataSend({ ...dataSend, send: true, id: newGame.data.id })
-          dispatch(setNewGame(true))
-          setSend(false)
-          setSendFirst(false)
-          setGame(initialState)
-          e.target.reset()
-        })
-        .catch(() => {
-          setSend(false)
-          setDataSend({ ...dataSend, send: true, error: true })
-        })
-    }
-  }
 
   return (
     <>
@@ -95,7 +36,7 @@ const CreateGame = () => {
         </Helmet>
       </HelmetProvider>
       <div id={styles.create}>
-        {(send || dataSend.send) &&
+        {dataSend.send &&
           <section id={styles.modalSend}>
             <div id={styles.content}>
               {send &&
@@ -127,16 +68,17 @@ const CreateGame = () => {
               </div>
             </div>
           </section>}
-        {(game.imageUrl && !errorImage && openImage) &&
+
+        {(game.image && !errorImage && openImage) &&
           <ModalImage
-            srcImage={game.imageUrl}
+            srcImage={game.image}
             moveCarrusel={setOpenImage}
             iconsMove={false}
           />}
         <form
           id={styles.form}
-          onChange={e => handleChange(e)}
-          onSubmit={e => handleSubmit(e)}
+          onChange={e => handleInputChange(e)}
+          onSubmit={e => handleInputSubmit(e)}
         >
           <h2 id={styles.title}>{game.name || 'Nombre del Juego'}</h2>
 
@@ -150,10 +92,10 @@ const CreateGame = () => {
             <label className={styles.require}>Foto del Juego</label>
             <section id={styles.boxImage}>
               <div id={styles.infoImageUrl}>
-                {(!errorImage && game.imageUrl) &&
+                {(!errorImage && game.image) &&
                   <img
                     id={styles.image}
-                    src={game.imageUrl}
+                    src={game.image}
                     onClick={() => setOpenImage(true)}
                     onError={() => setErrorImage(true)}
                   />}
@@ -169,9 +111,8 @@ const CreateGame = () => {
               </div>
               <input
                 type='url'
+                name='image'
                 id={styles.imageUrl}
-                name='imageUrl'
-                disabled={game.imageUpload}
                 placeholder='Ingresa la Url de tu imagen'
               />
             </section>
@@ -222,7 +163,7 @@ const CreateGame = () => {
           <CampoFormOpts
             name='Etiquetas'
             type='tags'
-            error={error.platforms}
+            error={error.tags}
             game={game}
             setGame={setGame}
             setSelect={setSelect}
@@ -237,7 +178,7 @@ const CreateGame = () => {
             id={styles.btnSub}
             type='submit'
             value='Publicar Juego!'
-            disabled={sendFirst && Object.values(error).some(e => e.length)}
+            disabled={send && Object.values(error).some(e => e.length)}
           />
           <ModalSelectOpts
             game={game}
